@@ -13,7 +13,7 @@ class telegram_bot:
         url = 'https://api.telegram.org/'+self.token+'/getUpdates'+parameter
         res = requests.get(url)
         resdic = res.json() #convert json respond to python dict
-        print(resdic)     
+        return resdic     
 
     #WEBHOOK
     def setWebhook(self, parameter):
@@ -34,8 +34,21 @@ class telegram_bot:
         resdic = res.json() 
         print(resdic)
 
+
 bot = telegram_bot('bot'+'1096258874:AAHtnfJpdm2_FPCHLChYHaEnZutzRsX7usU')
-upid = 383926255
+
+with open('up_id.txt', 'r') as f:
+    up_id = int(f.readline()) 
+
 while True:
-    bot.getUpdates("?offset=383926255")
+    resdic = bot.getUpdates("?offset="+str(up_id)+",allowed_updates=[“message”]")
+    if resdic['result'] != []:
+        unixts = int(resdic['result'][0]['message']['date'])
+        dt = datetime.utcfromtimestamp(unixts).strftime('%Y-%m-%d %H:%M:%S')
+        text = resdic['result'][0]['message']['text']
+        print(dt, ":", text)
+        
+        up_id += 1
+        with open('up_id.txt', 'w') as f:
+            f.write(str(up_id))
 
